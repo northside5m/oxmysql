@@ -4,9 +4,9 @@
   "description": "FXServer to MySQL communication via node-mysql2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/overextended/oxmysql.git"
+    "url": "https://github.com/communityox/oxmysql.git"
   },
-  "bugs": "https://github.com/overextended/oxmysql/issues",
+  "bugs": "https://github.com/communityox/oxmysql/issues",
   "author": "Overextended",
   "license": "LGPL-3.0-or-later",
   "type": "module",
