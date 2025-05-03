@@ -9,21 +9,34 @@ on:
 
 jobs:
   create-release:
+    if: github.actor_id != 210085057
     runs-on: ubuntu-latest
     steps:
-      - name: Get latest code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: ${{ github.event.repository.default_branch }}
+      - name: Install zip
+        run: sudo apt install zip
 
-      - name: Setup Bun
+      - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
 
 
-      - name: Install package dependencies
+      - name: Generate GitHub App token
+        id: app_token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - name: Get latest code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.repository.default_branch }}
+          token: ${{ steps.app_token.outputs.token }}
+
+
+      - name: Install dependencies
         run: bun install --frozen-lockfile
 
       - name: Run build script
@@ -41,9 +54,6 @@ jobs:
           message: 'chore: bump version to ${{ github.event.inputs.tag }}'
 
 
-      - name: Install zip
-        run: sudo apt install zip
-
       - name: Bundle files
         run: |
           mkdir -p ./temp/oxmysql/{web,lib}
@@ -55,12 +65,8 @@ jobs:
 
       - name: Create release
         uses: 'marvinpinto/action-automatic-releases@v1.2.1'
-        id: auto_release
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: true
           automatic_release_tag: ${{ github.event.inputs.tag }}
           files: oxmysql.zip
-        env:
-          CI: false
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
